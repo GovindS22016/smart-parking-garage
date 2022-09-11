@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script>
+    // var intervalId;
+    // function startLog() {
+    //     intervalId = window.setInterval(function(){
+    //     showRegisteredCustomers();
+    //     showVehicleLog();
+    //     showpaymentNotifications();
+    //     showActivityLog();
+    //   }, 3000);
+    // }
+    //window.onload = start;
+    // function stopLog(){
+    //   window.clearInterval(intervalId);
+    // }
+
+    function refreshLog() {
+        showRegisteredCustomers();
+        showVehicleLog();
+        showpaymentNotifications();
+        showActivityLog();
+    }
+
+    function showRegisteredCustomers()
+    {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+        fetch("https://3p88gbjx07.execute-api.us-east-1.amazonaws.com/Dev", requestOptions)
+        .then(response => response.text())
+        .then(result => {
+          var customers = JSON.parse(result)["body"]["Items"];
+          displayCustomerTable(customers);
+        })
+        .catch(error => console.log('error', error));
+    } 
+    
+    function showVehicleLog()
+    {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+        fetch("https://3p88gbjx07.execute-api.us-east-1.amazonaws.com/Dev/vehiclelog", requestOptions)
+        .then(response => response.text())
+        .then(result => {
+          var vehicleLogs = JSON.parse(result)["body"]["Items"];
+          displayVehicleLogTable(vehicleLogs);
+        })
+        .catch(error => console.log('error', error));
+    } 
+
+    function showpaymentNotifications()
+    {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+        fetch("https://3p88gbjx07.execute-api.us-east-1.amazonaws.com/Dev/vehiclelog/paymentnotification", requestOptions)
+        .then(response => response.text())
+        .then(result => {
+          var data = JSON.parse(result)["body"]["Items"];
+          displayPaymentNotificationsTable(data);
+        })
+        .catch(error => console.log('error', error));
+    }
+
+    function showActivityLog()
+    {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+        fetch("https://3p88gbjx07.execute-api.us-east-1.amazonaws.com/Dev/vehiclelog/paymentnotification/activitylog", requestOptions)
+        .then(response => response.text())
+        .then(result => {
+          var data = JSON.parse(result)["body"]["Items"];
+          displayActivityLogsTable(data);
+        })
+        .catch(error => console.log('error', error));
+    }
+
+    function clearTable(tableName)
+    { 
+      table = document.getElementById(tableName);
+      table.innerHTML = "";
+    } 
+
+    function displayCustomerTable(customers){
+      table = document.getElementById("customerTable");
+      clearTable("customerTable");
+
+      k=0;
+      row = table.insertRow(0);
+      row.insertCell(k++).innerHTML = "<b>First Name</b>";
+      row.insertCell(k++).innerHTML = "<b>Last Name</b>";
+      row.insertCell(k++).innerHTML = "<b>Email</b>";
+      row.insertCell(k++).innerHTML = "<b>License Plate</b>";
+
+      for (let i=0; i< customers.length; i++){
+        let j=0;
+        cust = customers[i];    
+        row = table.insertRow(i+1);
+
+        try{
+          row.insertCell(j++).innerHTML = cust["firstName"]["S"];
+          row.insertCell(j++).innerHTML = cust["lastName"]["S"];
+          row.insertCell(j++).innerHTML = cust["email"]["S"];
+          row.insertCell(j++).innerHTML = cust["license-plate"]["S"];
+        }
+        catch(error){
+          console.log(error);
+        }
+    }
+  }
+
+    function displayVehicleLogTable(customers){
+      table = document.getElementById("vehicleLogtable");
+      clearTable("vehicleLogtable");
+      
+      k=0;
+      row = table.insertRow(0);
+      row.insertCell(k++).innerHTML = "<b>License Plate</b>";
+      row.insertCell(k++).innerHTML = "<b>Check In Time</b>";
+      row.insertCell(k++).innerHTML = "<b>Checlk Out Time</b>";
+
+      for (let i=0; i< customers.length; i++){
+        let j=0;
+        cust = customers[i];    
+        row = table.insertRow(i+1);
+        try {
+            row.insertCell(j++).innerHTML = cust["license-plate-num"]["S"];
+            row.insertCell(j++).innerHTML = cust["checkin"]["S"];
+            row.insertCell(j++).innerHTML = cust["checkout"]["S"];          
+        }
+        catch(error){
+          console.log(error);
+        }
+    }
+  }
+    
+    function displayPaymentNotificationsTable(data){
+      table = document.getElementById("paymentNotification");
+      clearTable("paymentNotification");
+      
+      k=0;
+      row = table.insertRow(0);
+      row.insertCell(k++).innerHTML = "<b>Payment Notification from SNS</b>";
+
+      for (let i=0; i< data.length; i++){
+        let j=0;
+        item = data[i];    
+        row = table.insertRow(i+1);
+        try {
+            value = JSON.stringify(item["paymentNotification"]["S"]).replaceAll(/\\n/g, "<br />").replaceAll('\\', '').replaceAll('"', '');
+            row.insertCell(j++).innerHTML = value;
+        }
+        catch(error){
+          console.log(error);
+        }
+    }
+  }
+    
+    function displayActivityLogsTable(data){
+      table = document.getElementById("activityLog");
+      clearTable("activityLog");
+      
+      k=0;
+      row = table.insertRow(0);
+      row.insertCell(k++).innerHTML = "<b>Activity Log</b>";
+      row.insertCell(k++).innerHTML = "<b>Date Time</b>";
+      try{
+        for (let i=0; i< data.length; i++){
+          let j=0;
+          item = data[i];    
+          row = table.insertRow(i+1);
+          try {
+              row.insertCell(j++).innerHTML = item["log"]["S"];
+              row.insertCell(j++).innerHTML = item["dateTime"]["S"];
+          }
+          catch(error){
+            console.log(error);
+          }
+        }
+      }
+      catch(error){
+            console.log(error);
+          }
+
+  }
+    </script>
+
+<style>
+.font{
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+}  
+table {
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  border-collapse: collapse;
+  width: 60%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+.button-2 {
+  background-color: rgba(51, 51, 51, 0.05);
+  border-radius: 8px;
+  border-width: 0;
+  color: #333333;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px;
+  text-align: center;
+  transition: all 200ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+</style>
+</head>
+<body class="font">
+  <h1>AnyCorp Parking Management Application</h1> 
+  <button class="button-2" onclick="refreshLog()">Refresh Log</button>
+  <!-- <button class="button-2" onclick="stopLog()">Stop Log</button>  -->
+  <!-- <button class="button-2" onclick="showRegisteredCustomers()">Show Registered customers</button>   <button class="button-2" onclick="clearTable('customerTable')">Clear</button> -->
+  <h3>Registered customers: </h3>
+<table id="customerTable">
+</table>
+
+<br>
+<br>
+<h3>Activity Log: </h3>
+<table id="activityLog">
+</table>
+
+<br>
+<br>
+<!-- <button class="button-2" onclick="showVehicleLog()">Show Vehicle Log</button> <button class="button-2" onclick="clearTable('vehicleLogtable')">Clear</button> -->
+<h3>Vehicle Logs: </h3>
+<table id="vehicleLogtable">
+</table>
+
+<br>
+<br>
+<h3>Payment Notification from SNS: </h3>
+<table id="paymentNotification">
+</table>
+
+</body>
+</html>
+
