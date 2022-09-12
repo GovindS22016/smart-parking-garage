@@ -203,6 +203,30 @@
           }
 
   }
+
+  function sortTable() {
+  var table, rows, switching, i, x, y, shouldSwitch;
+  table = document.getElementById("activityLog");
+  switching = true;
+  while (switching) {
+    switching = false;
+    rows = table.rows;
+    for (i = 1; i < (rows.length - 1); i++) {
+      shouldSwitch = false;
+
+      x = rows[i].getElementsByTagName("TD")[1];
+      y = rows[i + 1].getElementsByTagName("TD")[1];
+      if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+        shouldSwitch = true;
+        break;
+      }
+    }
+    if (shouldSwitch) {
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+    }
+  }
+}
     </script>
 
 <style>
@@ -255,6 +279,7 @@ tr:nth-child(even) {
 <body class="font">
   <h1>AnyCorp Parking Management Application</h1> 
   <button class="button-2" onclick="refreshLog()">Refresh Log</button>
+  
   <!-- <button class="button-2" onclick="stopLog()">Stop Log</button>  -->
   <!-- <button class="button-2" onclick="showRegisteredCustomers()">Show Registered customers</button>   <button class="button-2" onclick="clearTable('customerTable')">Clear</button> -->
   <h3>Registered customers: </h3>
@@ -263,7 +288,7 @@ tr:nth-child(even) {
 
 <br>
 <br>
-<h3>Activity Log: </h3>
+<h3>Activity Log: <button class="button-2" onclick="sortTable()">Sort Activity Log Table</button> </h3>
 <table id="activityLog">
 </table>
 
@@ -282,4 +307,3 @@ tr:nth-child(even) {
 
 </body>
 </html>
-
